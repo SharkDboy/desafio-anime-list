@@ -1,21 +1,34 @@
+import Box from "@mui/material/Box";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
+
 export function HomePage() {
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-white">
+    <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
+      <Box>
+        <Typography variant="h4" component="h1" fontWeight={700}>
           Lista de animes
-        </h1>
-        <p className="mt-2 text-slate-400">
+        </Typography>
+        <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
           Esqueleto do desafio — conecte a API e liste os cards aqui.
-        </p>
-      </div>
+        </Typography>
+      </Box>
 
-      <section
+      <Paper
+        component="section"
+        variant="outlined"
         aria-label="Placeholder da grade de animes"
-        className="rounded-lg border border-dashed border-slate-700 bg-slate-900/50 p-12 text-center text-slate-500"
+        sx={{
+          p: 6,
+          textAlign: "center",
+          borderStyle: "dashed",
+          bgcolor: "background.paper",
+        }}
       >
-        Grade de animes (busca, filtros, paginação) virá aqui.
-      </section>
-    </div>
+        <Typography color="text.secondary">
+          Grade de animes (busca, filtros, paginação) virá aqui.
+        </Typography>
+      </Paper>
+    </Box>
   );
 }

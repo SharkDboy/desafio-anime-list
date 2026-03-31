@@ -1,26 +1,40 @@
-import { Link, NavLink } from "react-router-dom";
-
-const navClass = ({ isActive }: { isActive: boolean }) =>
-  [
-    "rounded-md px-3 py-2 text-sm font-medium transition-colors",
-    isActive
-      ? "bg-indigo-600 text-white"
-      : "text-slate-300 hover:bg-slate-800 hover:text-white",
-  ].join(" ");
+import { Link as RouterLink, useMatch } from "react-router-dom";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Toolbar from "@mui/material/Toolbar";
+import Typography from "@mui/material/Typography";
 
 export function Header() {
+  const homeActive = useMatch({ path: "/", end: true });
+
   return (
-    <header className="border-b border-slate-800 bg-slate-900/80 backdrop-blur">
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
-        <Link to="/" className="text-lg font-semibold text-white">
+    <AppBar position="sticky" color="default" elevation={1}>
+      <Toolbar sx={{ maxWidth: 1152, width: "100%", mx: "auto" }}>
+        <Typography
+          variant="h6"
+          component={RouterLink}
+          to="/"
+          sx={{
+            flexGrow: 0,
+            mr: 4,
+            color: "inherit",
+            textDecoration: "none",
+            fontWeight: 700,
+          }}
+        >
           Anime List
-        </Link>
-        <nav className="flex gap-1">
-          <NavLink to="/" end className={navClass}>
-            Início
-          </NavLink>
-        </nav>
-      </div>
-    </header>
+        </Typography>
+        <Box sx={{ flexGrow: 1 }} />
+        <Button
+          component={RouterLink}
+          to="/"
+          color="inherit"
+          variant={homeActive ? "contained" : "text"}
+        >
+          Início
+        </Button>
+      </Toolbar>
+    </AppBar>
   );
 }

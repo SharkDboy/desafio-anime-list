@@ -1,13 +1,15 @@
 import { Outlet } from "react-router-dom";
+import Box from "@mui/material/Box";
+import Container from "@mui/material/Container";
 import { Header } from "./Header";
 
 export function MainLayout() {
   return (
-    <div className="flex min-h-screen flex-col">
+    <Box sx={{ display: "flex", minHeight: "100vh", flexDirection: "column" }}>
       <Header />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">
+      <Container component="main" maxWidth="lg" sx={{ flex: 1, py: 4 }}>
         <Outlet />
-      </main>
-    </div>
+      </Container>
+    </Box>
   );
 }
