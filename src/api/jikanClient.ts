@@ -2,18 +2,20 @@ import axios, { type AxiosError } from "axios";
 
 const DEFAULT_BASE = "https://api.jikan.moe/v4";
 
-export function getApiBaseUrl(): string {
+/** Base URL da Jikan API v4 (ou `VITE_API_BASE_URL` se definida). */
+export function getJikanBaseUrl(): string {
   return import.meta.env.VITE_API_BASE_URL ?? DEFAULT_BASE;
 }
 
-export const api = axios.create({
-  baseURL: getApiBaseUrl().replace(/\/$/, ""),
+/** Instância centralizada do Axios para todas as chamadas à Jikan. */
+export const jikanClient = axios.create({
+  baseURL: getJikanBaseUrl().replace(/\/$/, ""),
   headers: {
     Accept: "application/json",
   },
 });
 
-api.interceptors.response.use(
+jikanClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 429) {
@@ -27,8 +29,9 @@ api.interceptors.response.use(
   }
 );
 
-export async function apiGet<T>(path: string): Promise<T> {
+/** GET genérico na base da Jikan (extensões futuras). */
+export async function jikanGet<T>(path: string): Promise<T> {
   const normalized = path.startsWith("/") ? path : `/${path}`;
-  const { data } = await api.get<T>(normalized);
+  const { data } = await jikanClient.get<T>(normalized);
   return data;
 }

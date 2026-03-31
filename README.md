@@ -2,6 +2,12 @@
 
 Aplicação web para listar e explorar animes, consumindo a **Jikan API v4** (dados não oficiais do MyAnimeList). Stack: **React**, **TypeScript**, **Vite**, **Material UI**, **Axios**, **TanStack Query** e **React Router**.
 
+### Funcionalidades
+
+- **Início:** ranking popular (`/top/anime`) e **busca** por título, com **paginação**.
+- **Detalhe:** página do anime com sinopse, gêneros, nota e metadados (`/anime/:id`).
+- **Favoritos (MVP):** lista de IDs salvos no **`localStorage`** (coração no card e na página de detalhe; contador no cabeçalho).
+
 ## Pré-requisitos
 
 - [Node.js](https://nodejs.org/) (recomendado: LTS)
@@ -32,10 +38,14 @@ Copie `.env.example` para `.env` se precisar sobrescrever a URL base da API (`VI
 
 ## Estrutura principal
 
-- `src/api/` — cliente Axios e chamadas à Jikan
-- `src/components/` — componentes reutilizáveis e layout
-- `src/pages/` — telas (Home, detalhe)
-- `src/types/` — tipos TypeScript (incl. respostas da API)
+- `src/api/` — `jikanClient.ts` (Axios + base URL Jikan), `animeApi.ts` (busca, top, detalhe)
+- `src/components/` — layout e `AnimeCard`
+- `src/context/` — favoritos (`FavoritesProvider`)
+- `src/hooks/` — `useAnimeCatalog`, `useAnimeDetail`
+- `src/lib/` — helpers de `localStorage` / `sessionStorage`
+- `src/pages/` — Home e detalhe
+- `src/types/` — tipos das respostas Jikan
+- `src/utils/` — utilitários (ex.: limpeza de HTML na sinopse)
 
 ## Tema MUI
 

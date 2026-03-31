@@ -42,6 +42,13 @@ export type AnimeSearchResponse = {
 };
 
 /** Parâmetros de query para `GET /anime` (subset dos suportados pela Jikan). */
+/** Parâmetros de query para `GET /top/anime`. */
+export type TopAnimeParams = {
+  filter?: "airing" | "upcoming" | "bypopularity" | "favorite";
+  page?: number;
+  limit?: number;
+};
+
 export type AnimeSearchParams = {
   q?: string;
   page?: number;

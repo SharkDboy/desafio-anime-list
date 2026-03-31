@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import App from "./App";
+import { FavoritesProvider } from "./context/FavoritesContext";
 import { theme } from "./theme";
 import "./index.css";
 
@@ -22,9 +23,11 @@ createRoot(document.getElementById("root")!).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <FavoritesProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </FavoritesProvider>
       </QueryClientProvider>
     </ThemeProvider>
   </StrictMode>
