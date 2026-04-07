@@ -4,7 +4,15 @@ import type {
   AnimeSearchResponse,
   TopAnimeParams,
 } from "@/types/anime";
+import { JIKAN_ANIME_PATHS } from "./jikanAnimeEndpoints";
 import { jikanClient } from "./jikanClient";
+
+/**
+ * Camada de serviço: traduz endpoints Jikan em funções tipadas.
+ * O TypeScript garante que o que consumimos bate com `@/types/anime`.
+ *
+ * Os paths HTTP ficam em `./jikanAnimeEndpoints` (contrato REST explícito; ver README).
+ */
 
 /**
  * Ranking / top animes (`GET /top/anime`).
@@ -13,9 +21,10 @@ import { jikanClient } from "./jikanClient";
 export async function getTopAnime(
   params?: TopAnimeParams
 ): Promise<AnimeSearchResponse> {
-  const { data } = await jikanClient.get<AnimeSearchResponse>("/top/anime", {
-    params: params ?? {},
-  });
+  const { data } = await jikanClient.get<AnimeSearchResponse>(
+    JIKAN_ANIME_PATHS.topAnime,
+    { params: params ?? {} }
+  );
   return data;
 }
 
@@ -26,9 +35,10 @@ export async function getTopAnime(
 export async function searchAnime(
   params?: AnimeSearchParams
 ): Promise<AnimeSearchResponse> {
-  const { data } = await jikanClient.get<AnimeSearchResponse>("/anime", {
-    params: params ?? {},
-  });
+  const { data } = await jikanClient.get<AnimeSearchResponse>(
+    JIKAN_ANIME_PATHS.animeSearch,
+    { params: params ?? {} }
+  );
   return data;
 }
 
@@ -38,7 +48,7 @@ export async function searchAnime(
  */
 export async function getAnimeById(id: number): Promise<AnimeFullResponse> {
   const { data } = await jikanClient.get<AnimeFullResponse>(
-    `/anime/${id}/full`
+    JIKAN_ANIME_PATHS.animeFull(id)
   );
   return data;
 }

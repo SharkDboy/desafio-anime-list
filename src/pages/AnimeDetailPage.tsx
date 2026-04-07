@@ -65,7 +65,7 @@ export function AnimeDetailPage() {
       {anime && (
         <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, overflow: "hidden" }}>
           <Grid container spacing={3}>
-            <Grid size={{ xs: 12, md: 4 }}>
+            <Grid item xs={12} md={4}>
               <Box
                 component="img"
                 src={img}
@@ -79,7 +79,7 @@ export function AnimeDetailPage() {
                 }}
               />
             </Grid>
-            <Grid size={{ xs: 12, md: 8 }}>
+            <Grid item xs={12} md={8}>
               <Stack spacing={2}>
                 <Box
                   sx={{

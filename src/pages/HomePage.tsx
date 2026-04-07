@@ -85,7 +85,7 @@ export function HomePage() {
           ) : (
             <Grid container spacing={2}>
               {data.data.map((anime) => (
-                <Grid key={anime.mal_id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                <Grid item xs={12} sm={6} md={4} lg={3} key={anime.mal_id}>
                   <AnimeCard anime={anime} />
                 </Grid>
               ))}

@@ -38,14 +38,19 @@ Copie `.env.example` para `.env` se precisar sobrescrever a URL base da API (`VI
 
 ## Estrutura principal
 
-- `src/api/` — `jikanClient.ts` (Axios + base URL Jikan), `animeApi.ts` (busca, top, detalhe)
-- `src/components/` — layout e `AnimeCard`
+- `src/api/` — `jikanClient.ts` (Axios + base URL Jikan), `jikanAnimeEndpoints.ts` (caminhos REST), `animeApi.ts` (serviço: top, busca, detalhe)
+- `src/components/` — `Navbar`, layout e `AnimeCard`
 - `src/context/` — favoritos (`FavoritesProvider`)
 - `src/hooks/` — `useAnimeCatalog`, `useAnimeDetail`
 - `src/lib/` — helpers de `localStorage` / `sessionStorage`
 - `src/pages/` — Home e detalhe
 - `src/types/` — tipos das respostas Jikan
 - `src/utils/` — utilitários (ex.: limpeza de HTML na sinopse)
+
+## Decisões de arquitetura (Dia 2)
+
+- **Caminhos da API:** mantidos em `jikanAnimeEndpoints.ts` em vez de colapsar tudo em `animeApi.ts`, para o mapa REST ficar visível num só lugar e escalar se surgirem mais recursos Jikan. *Alternativa avaliada:* constantes no topo de `animeApi.ts` (menos arquivos em projetos mínimos).
+- **Barra superior:** componente `Navbar` (não `Header`) para alinhar ao cronograma do desafio e reforçar papel de navegação; usa `nav` + ARIA. *Alternativa avaliada:* nome `Header` (comum em design systems) ou `BottomNavigation` no rodapé (útil com muitas abas).
 
 ## Tema MUI
 

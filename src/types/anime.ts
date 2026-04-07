@@ -1,5 +1,9 @@
 /**
- * Tipos alinhados à Jikan API v4 (MyAnimeList não oficial).
+ * Contratos de dados (Dia 2): o que o app espera receber da Jikan API v4.
+ *
+ * Cada tipo espelha o JSON da API o suficiente para listagem, busca e detalhe.
+ * Campos opcionais cobrem variações entre endpoints; a documentação oficial é a fonte da verdade.
+ *
  * @see https://docs.api.jikan.moe/
  */
 
@@ -41,7 +45,6 @@ export type AnimeSearchResponse = {
   data: AnimeListItem[];
 };
 
-/** Parâmetros de query para `GET /anime` (subset dos suportados pela Jikan). */
 /** Parâmetros de query para `GET /top/anime`. */
 export type TopAnimeParams = {
   filter?: "airing" | "upcoming" | "bypopularity" | "favorite";
@@ -49,6 +52,7 @@ export type TopAnimeParams = {
   limit?: number;
 };
 
+/** Parâmetros de query para `GET /anime`. */
 export type AnimeSearchParams = {
   q?: string;
   page?: number;
