@@ -8,6 +8,7 @@ import CardMedia from "@mui/material/CardMedia";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
 import { useFavorites } from "@/context/FavoritesContext";
+import { useLocale } from "@/context/LocaleContext";
 import type { AnimeListItem } from "@/types/anime";
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 
 export function AnimeCard({ anime }: Props) {
   const { isFavorite, toggle } = useFavorites();
+  const { t } = useLocale();
   const fav = isFavorite(anime.mal_id);
   const img =
     anime.images.jpg.large_image_url ||
@@ -32,9 +34,7 @@ export function AnimeCard({ anime }: Props) {
       }}
     >
       <IconButton
-        aria-label={
-          fav ? "Remover dos favoritos" : "Adicionar aos favoritos"
-        }
+        aria-label={fav ? t("card.removeFav") : t("card.addFav")}
         onClick={(e) => {
           e.preventDefault();
           e.stopPropagation();
@@ -73,8 +73,10 @@ export function AnimeCard({ anime }: Props) {
             {anime.title}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            {anime.score != null ? `★ ${anime.score}` : "Sem nota"}
-            {anime.episodes != null ? ` · ${anime.episodes} eps` : ""}
+            {anime.score != null ? `★ ${anime.score}` : t("card.noScore")}
+            {anime.episodes != null
+              ? ` · ${anime.episodes} ${t("card.eps")}`
+              : ""}
           </Typography>
         </CardContent>
       </CardActionArea>

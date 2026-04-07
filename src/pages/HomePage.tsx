@@ -11,9 +11,11 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { AnimeCard } from "@/components/AnimeCard";
+import { useLocale } from "@/context/LocaleContext";
 import { useAnimeCatalog } from "@/hooks/useAnimeCatalog";
 
 export function HomePage() {
+  const { t } = useLocale();
   const [input, setInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [page, setPage] = useState(1);
@@ -28,12 +30,12 @@ export function HomePage() {
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Box>
         <Typography variant="h4" component="h1" fontWeight={700}>
-          Lista de animes
+          {t("home.title")}
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
           {appliedSearch
-            ? `Resultados para “${appliedSearch}”`
-            : "Populares no MyAnimeList (via Jikan). Use a busca para filtrar."}
+            ? t("home.subtitleResults", { q: appliedSearch })
+            : t("home.subtitlePopular")}
         </Typography>
       </Box>
 
@@ -46,15 +48,19 @@ export function HomePage() {
       >
         <TextField
           fullWidth
-          label="Buscar anime"
-          placeholder="Ex.: Naruto, One Piece…"
+          label={t("home.searchLabel")}
+          placeholder={t("home.searchPlaceholder")}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           slotProps={{
             input: {
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton type="submit" edge="end" aria-label="Buscar">
+                  <IconButton
+                    type="submit"
+                    edge="end"
+                    aria-label={t("home.searchAria")}
+                  >
                     <SearchIcon />
                   </IconButton>
                 </InputAdornment>
@@ -66,13 +72,13 @@ export function HomePage() {
 
       {isError && (
         <Alert severity="error">
-          {error instanceof Error ? error.message : "Erro ao carregar animes."}
+          {error instanceof Error ? error.message : t("home.errLoad")}
         </Alert>
       )}
 
       {isPending && (
         <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-          <CircularProgress aria-label="Carregando" />
+          <CircularProgress aria-label={t("home.loading")} />
         </Box>
       )}
 
@@ -80,7 +86,7 @@ export function HomePage() {
         <>
           {data.data.length === 0 ? (
             <Typography color="text.secondary" textAlign="center" py={4}>
-              Nenhum resultado. Tente outro termo.
+              {t("home.noResults")}
             </Typography>
           ) : (
             <Grid container spacing={2}>

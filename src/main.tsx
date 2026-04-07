@@ -6,6 +6,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider } from "@mui/material/styles";
 import App from "./App";
 import { FavoritesProvider } from "./context/FavoritesContext";
+import { LocaleProvider } from "./context/LocaleContext";
 import { theme } from "./theme";
 import "./index.css";
 
@@ -23,11 +24,13 @@ createRoot(document.getElementById("root")!).render(
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <QueryClientProvider client={queryClient}>
-        <FavoritesProvider>
-          <BrowserRouter>
-            <App />
-          </BrowserRouter>
-        </FavoritesProvider>
+        <LocaleProvider>
+          <FavoritesProvider>
+            <BrowserRouter>
+              <App />
+            </BrowserRouter>
+          </FavoritesProvider>
+        </LocaleProvider>
       </QueryClientProvider>
     </ThemeProvider>
   </StrictMode>

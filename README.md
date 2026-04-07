@@ -6,6 +6,7 @@ Aplicação web para listar e explorar animes, consumindo a **Jikan API v4** (da
 
 - **Início:** ranking popular (`/top/anime`) e **busca** por título, com **paginação**.
 - **Detalhe:** página do anime com sinopse, gêneros, nota e metadados (`/anime/:id`).
+- **Idiomas:** UI em **português (BR)** ou **espanhol (Latam)**; a **sinopse** é traduzida do inglês via **MyMemory** (automática), com **cache em IndexedDB** por anime, idioma e hash do texto.
 - **Favoritos (MVP):** lista de IDs salvos no **`localStorage`** (coração no card e na página de detalhe; contador no cabeçalho).
 
 ## Pré-requisitos
@@ -36,13 +37,18 @@ O Vite exibirá um endereço local (em geral `http://localhost:5173`). Abra no n
 
 Copie `.env.example` para `.env` se precisar sobrescrever a URL base da API (`VITE_API_BASE_URL`). O padrão é `https://api.jikan.moe/v4`.
 
+- **`VITE_MYMEMORY_EMAIL` (opcional):** e-mail associado ao [MyMemory](https://mymemory.translated.net/) para aumentar a cota diária de tradução de sinopses.
+
+Em **desenvolvimento**, o Vite faz **proxy** de `/mymemory` para a API MyMemory e evita bloqueio CORS. No **build de produção**, as requisições vão direto ao MyMemory; se o navegador bloquear CORS, será preciso um proxy no seu host ou outro provedor de tradução.
+
 ## Estrutura principal
 
 - `src/api/` — `jikanClient.ts` (Axios + base URL Jikan), `jikanAnimeEndpoints.ts` (caminhos REST), `animeApi.ts` (serviço: top, busca, detalhe)
 - `src/components/` — `Navbar`, layout e `AnimeCard`
 - `src/context/` — favoritos (`FavoritesProvider`)
-- `src/hooks/` — `useAnimeCatalog`, `useAnimeDetail`
-- `src/lib/` — helpers de `localStorage` / `sessionStorage`
+- `src/hooks/` — `useAnimeCatalog`, `useAnimeDetail`, `useTranslatedSynopsis`
+- `src/i18n/` — textos da UI e constantes de locale
+- `src/lib/` — `localStorage` / `sessionStorage`, cache IndexedDB da sinopse, cliente MyMemory
 - `src/pages/` — Home e detalhe
 - `src/types/` — tipos das respostas Jikan
 - `src/utils/` — utilitários (ex.: limpeza de HTML na sinopse)

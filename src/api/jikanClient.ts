@@ -1,4 +1,5 @@
 import axios, { type AxiosError } from "axios";
+import { getJikanRateLimitMessage } from "@/i18n/messages";
 
 const DEFAULT_BASE = "https://api.jikan.moe/v4";
 
@@ -19,11 +20,7 @@ jikanClient.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 429) {
-      return Promise.reject(
-        new Error(
-          "Limite de requisições da API Jikan atingido. Aguarde um momento e tente novamente."
-        )
-      );
+      return Promise.reject(new Error(getJikanRateLimitMessage()));
     }
     return Promise.reject(error);
   }
