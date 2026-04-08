@@ -52,6 +52,8 @@ export type AnimeSearchParams = {
   min_score?: number;
   max_score?: number;
   sfw?: boolean;
+  start_date?: string;
+  end_date?: string;
 };
 
 export type JikanNamedResource = {

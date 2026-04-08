@@ -7,6 +7,7 @@ import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { Link as RouterLink, useMatch } from "react-router-dom";
+import { SearchBar } from "@/components/SearchBar";
 import { useAnimeLists } from "@/hooks/useAnimeLists";
 
 export function Navbar() {
@@ -17,7 +18,15 @@ export function Navbar() {
 
   return (
     <AppBar position="sticky" color="default" elevation={2}>
-      <Toolbar sx={{ maxWidth: 1152, width: "100%", mx: "auto", gap: 2 }}>
+      <Toolbar
+        sx={{
+          maxWidth: 1152,
+          width: "100%",
+          mx: "auto",
+          gap: 2,
+          flexWrap: "wrap",
+        }}
+      >
         <Box
           component="nav"
           aria-label="Principal"
@@ -64,6 +73,8 @@ export function Navbar() {
               </Typography>
             </Stack>
           </Stack>
+
+          <SearchBar />
 
           <Button
             component={RouterLink}

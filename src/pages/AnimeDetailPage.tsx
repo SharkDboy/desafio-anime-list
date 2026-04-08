@@ -8,7 +8,6 @@ import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Grid from "@mui/material/Grid";
 import Link from "@mui/material/Link";
@@ -16,6 +15,8 @@ import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { getAnimeById } from "@/api/animeApi";
+import { ErrorState } from "@/components/ErrorState";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useAnimeLists } from "@/hooks/useAnimeLists";
 import type { AnimeFull } from "@/types/anime";
 import { stripHtml } from "@/utils/stripHtml";
@@ -90,16 +91,12 @@ export function AnimeDetailPage() {
       </Link>
 
       {error && (
-        <Alert severity="error">
-          {error instanceof Error ? error.message : "Erro ao carregar"}
-        </Alert>
+        <ErrorState
+          message={error instanceof Error ? error.message : "Erro ao carregar"}
+        />
       )}
 
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-          <CircularProgress aria-label="Carregando" />
-        </Box>
-      )}
+      {loading && <LoadingSpinner />}
 
       {anime && (
         <Paper variant="outlined" sx={{ p: { xs: 2, md: 3 }, overflow: "hidden" }}>

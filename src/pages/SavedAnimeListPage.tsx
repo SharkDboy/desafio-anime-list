@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { getAnimeById } from "@/api/animeApi";
 import { AnimeCard } from "@/components/AnimeCard";
+import { ErrorState } from "@/components/ErrorState";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useAnimeLists } from "@/hooks/useAnimeLists";
 import type { AnimeListItem } from "@/types/anime";
 
@@ -14,8 +14,7 @@ type ListKind = "favorites" | "watched";
 export function SavedAnimeListPage({ kind }: { kind: ListKind }) {
   const { favoriteIds, watchedIds } = useAnimeLists();
   const ids = kind === "favorites" ? favoriteIds : watchedIds;
-  const title =
-    kind === "favorites" ? "Favoritos" : "Assistidos";
+  const title = kind === "favorites" ? "Favoritos" : "Assistidos";
   const emptyMsg =
     kind === "favorites"
       ? "Nenhum favorito ainda. Explore a home e clique no coração."
@@ -63,16 +62,12 @@ export function SavedAnimeListPage({ kind }: { kind: ListKind }) {
       </Typography>
 
       {error && (
-        <Alert severity="error">
-          {error instanceof Error ? error.message : "Erro ao carregar"}
-        </Alert>
+        <ErrorState
+          message={error instanceof Error ? error.message : "Erro ao carregar"}
+        />
       )}
 
-      {loading && (
-        <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-          <CircularProgress aria-label="Carregando" />
-        </Box>
-      )}
+      {loading && <LoadingSpinner />}
 
       {!loading && ids.length === 0 && (
         <Typography color="text.secondary">{emptyMsg}</Typography>
