@@ -1,4 +1,7 @@
+import { useEffect, useState } from "react";
 import { Link as RouterLink, useParams } from "react-router-dom";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CheckCircleOutlineIcon from "@mui/icons-material/CheckCircleOutline";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import Alert from "@mui/material/Alert";
@@ -12,66 +15,89 @@ import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useFavorites } from "@/context/FavoritesContext";
-import { useLocale } from "@/context/LocaleContext";
-import { useAnimeDetail } from "@/hooks/useAnimeDetail";
-import { useTranslatedSynopsis } from "@/hooks/useTranslatedSynopsis";
+import { getAnimeById } from "@/api/animeApi";
+import { useAnimeLists } from "@/hooks/useAnimeLists";
+import type { AnimeFull } from "@/types/anime";
 import { stripHtml } from "@/utils/stripHtml";
 
 export function AnimeDetailPage() {
-  const { locale, t } = useLocale();
   const { id } = useParams<{ id: string }>();
   const malId = id ? Number.parseInt(id, 10) : Number.NaN;
   const validId = Number.isFinite(malId) && malId > 0;
 
-  const { data, isPending, isError, error } = useAnimeDetail(
-    validId ? malId : null
-  );
-  const { isFavorite, toggle } = useFavorites();
+  const { isFavorite, isWatched, toggleFavorite, toggleWatched } =
+    useAnimeLists();
 
-  const strippedSynopsis =
-    validId && data?.data?.synopsis
-      ? stripHtml(data.data.synopsis)
-      : null;
+  const [anime, setAnime] = useState<AnimeFull | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
-  const synopsisUi = useTranslatedSynopsis(
-    validId ? malId : 0,
-    locale,
-    strippedSynopsis
-  );
+  useEffect(() => {
+    if (!validId) {
+      setAnime(null);
+      setLoading(false);
+      setError(null);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const run = async () => {
+      try {
+        const res = await getAnimeById(malId);
+        if (!cancelled) setAnime(res.data);
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e : new Error(String(e)));
+          setAnime(null);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [malId, validId]);
 
   if (!validId) {
     return (
       <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
         <Link component={RouterLink} to="/" underline="hover" variant="body2">
-          {t("detail.back")}
+          Voltar
         </Link>
-        <Alert severity="warning">{t("detail.invalidId")}</Alert>
+        <Alert severity="warning">ID do anime inválido.</Alert>
       </Box>
     );
   }
 
-  const anime = data?.data;
   const img =
     anime?.images?.jpg?.large_image_url ||
     anime?.images?.jpg?.image_url ||
     "";
 
+  const synopsisText = anime?.synopsis
+    ? stripHtml(anime.synopsis)
+    : null;
+
+  const embedUrl = anime?.trailer?.embed_url;
+
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Link component={RouterLink} to="/" underline="hover" variant="body2">
-        {t("detail.back")}
+        Voltar
       </Link>
 
-      {isError && (
+      {error && (
         <Alert severity="error">
-          {error instanceof Error ? error.message : t("detail.errLoad")}
+          {error instanceof Error ? error.message : "Erro ao carregar"}
         </Alert>
       )}
 
-      {isPending && (
+      {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-          <CircularProgress aria-label={t("detail.loading")} />
+          <CircularProgress aria-label="Carregando" />
         </Box>
       )}
 
@@ -115,19 +141,29 @@ export function AnimeDetailPage() {
                         <FavoriteBorderIcon />
                       )
                     }
-                    onClick={() => toggle(anime.mal_id)}
+                    onClick={() => toggleFavorite(anime.mal_id)}
                   >
-                    {isFavorite(anime.mal_id)
-                      ? t("detail.inFavorites")
-                      : t("detail.favorite")}
+                    {isFavorite(anime.mal_id) ? "Nos favoritos" : "Favoritar"}
+                  </Button>
+                  <Button
+                    variant="outlined"
+                    color={isWatched(anime.mal_id) ? "success" : "inherit"}
+                    startIcon={
+                      isWatched(anime.mal_id) ? (
+                        <CheckCircleIcon />
+                      ) : (
+                        <CheckCircleOutlineIcon />
+                      )
+                    }
+                    onClick={() => toggleWatched(anime.mal_id)}
+                  >
+                    {isWatched(anime.mal_id) ? "Assistido" : "Marcar assistido"}
                   </Button>
                 </Box>
 
                 {(anime.title_english || anime.title_japanese) && (
                   <Typography variant="body2" color="text.secondary">
-                    {anime.title_english && (
-                      <span>{anime.title_english}</span>
-                    )}
+                    {anime.title_english && <span>{anime.title_english}</span>}
                     {anime.title_english && anime.title_japanese && " · "}
                     {anime.title_japanese && (
                       <span>{anime.title_japanese}</span>
@@ -138,13 +174,13 @@ export function AnimeDetailPage() {
                 <Stack direction="row" flexWrap="wrap" gap={1}>
                   {anime.score != null && (
                     <Chip
-                      label={t("detail.score", { score: anime.score })}
+                      label={`Nota: ${anime.score}`}
                       size="small"
                     />
                   )}
                   {anime.episodes != null && (
                     <Chip
-                      label={t("detail.episodes", { n: anime.episodes })}
+                      label={`Episódios: ${anime.episodes}`}
                       size="small"
                     />
                   )}
@@ -153,6 +189,13 @@ export function AnimeDetailPage() {
                   )}
                   {anime.rating && (
                     <Chip label={anime.rating} size="small" variant="outlined" />
+                  )}
+                  {anime.aired?.from && (
+                    <Chip
+                      label={`Estreia: ${anime.aired.from}`}
+                      size="small"
+                      variant="outlined"
+                    />
                   )}
                 </Stack>
 
@@ -164,48 +207,32 @@ export function AnimeDetailPage() {
                   </Stack>
                 )}
 
+                {embedUrl && (
+                  <Box
+                    component="iframe"
+                    src={embedUrl}
+                    title="Trailer"
+                    sx={{
+                      width: "100%",
+                      maxWidth: 560,
+                      aspectRatio: "16 / 9",
+                      border: 0,
+                      borderRadius: 1,
+                    }}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  />
+                )}
+
                 <Divider />
 
-                {strippedSynopsis ? (
-                  synopsisUi.loading ? (
-                    <Stack
-                      direction="row"
-                      spacing={2}
-                      alignItems="center"
-                      sx={{ py: 1 }}
-                    >
-                      <CircularProgress
-                        size={28}
-                        aria-label={t("detail.synopsisTranslating")}
-                      />
-                      <Typography variant="body2" color="text.secondary">
-                        {t("detail.synopsisTranslating")}
-                      </Typography>
-                    </Stack>
-                  ) : (
-                    <Box>
-                      {synopsisUi.error && (
-                        <Alert severity="info" sx={{ mb: 2 }}>
-                          {t("detail.synopsisTranslateFailed")}
-                        </Alert>
-                      )}
-                      <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
-                        {synopsisUi.displayText}
-                      </Typography>
-                      {synopsisUi.translated && (
-                        <Typography
-                          variant="caption"
-                          color="text.secondary"
-                          sx={{ display: "block", mt: 1.5 }}
-                        >
-                          {t("detail.synopsisMtNote")}
-                        </Typography>
-                      )}
-                    </Box>
-                  )
+                {synopsisText ? (
+                  <Typography variant="body1" sx={{ whiteSpace: "pre-line" }}>
+                    {synopsisText}
+                  </Typography>
                 ) : (
                   <Typography color="text.secondary">
-                    {t("detail.noSynopsis")}
+                    Sem sinopse disponível.
                   </Typography>
                 )}
               </Stack>

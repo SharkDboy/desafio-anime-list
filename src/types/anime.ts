@@ -1,13 +1,3 @@
-/**
- * Contratos de dados (Dia 2): o que o app espera receber da Jikan API v4.
- *
- * Cada tipo espelha o JSON da API o suficiente para listagem, busca e detalhe.
- * Campos opcionais cobrem variações entre endpoints; a documentação oficial é a fonte da verdade.
- *
- * @see https://docs.api.jikan.moe/
- */
-
-/** Metadados de paginação em listagens (`items` conforme resposta v4). */
 export type JikanPaginationItems = {
   count: number;
   total: number;
@@ -27,7 +17,6 @@ export type AnimeImage = {
   large_image_url?: string;
 };
 
-/** Item em resultados de busca / listagens. */
 export type AnimeListItem = {
   mal_id: number;
   title: string;
@@ -45,14 +34,12 @@ export type AnimeSearchResponse = {
   data: AnimeListItem[];
 };
 
-/** Parâmetros de query para `GET /top/anime`. */
 export type TopAnimeParams = {
   filter?: "airing" | "upcoming" | "bypopularity" | "favorite";
   page?: number;
   limit?: number;
 };
 
-/** Parâmetros de query para `GET /anime`. */
 export type AnimeSearchParams = {
   q?: string;
   page?: number;
@@ -67,7 +54,6 @@ export type AnimeSearchParams = {
   sfw?: boolean;
 };
 
-/** Recurso nomeado (gênero, estúdio, etc.) na resposta da API. */
 export type JikanNamedResource = {
   mal_id: number;
   type?: string;
@@ -75,7 +61,6 @@ export type JikanNamedResource = {
   url?: string;
 };
 
-/** Objeto retornado em `GET /anime/{id}/full` (campos frequentes; outros podem existir). */
 export type AnimeFull = AnimeListItem & {
   url?: string;
   titles?: string[];
@@ -95,9 +80,13 @@ export type AnimeFull = AnimeListItem & {
   studios?: JikanNamedResource[];
   producers?: JikanNamedResource[];
   licensors?: JikanNamedResource[];
+  trailer?: {
+    youtube_id?: string | null;
+    url?: string | null;
+    embed_url?: string | null;
+  };
 };
 
-/** Corpo de `GET /anime/{id}/full`. */
 export type AnimeFullResponse = {
   data: AnimeFull;
 };

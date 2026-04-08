@@ -1,63 +1,83 @@
-# Anime List — Desafio Técnico
+# Anime List
 
-Aplicação web para listar e explorar animes, consumindo a **Jikan API v4** (dados não oficiais do MyAnimeList). Stack: **React**, **TypeScript**, **Vite**, **Material UI**, **Axios**, **TanStack Query** e **React Router**.
+Aplicação web para explorar animes usando a [Jikan API v4](https://docs.api.jikan.moe/) (dados não oficiais do MyAnimeList). Interface em português, com busca, listagem paginada, página de detalhe e duas listas pessoais (**favoritos** e **assistidos**) persistidas no `localStorage` do navegador.
 
-### Funcionalidades
+## Stack
 
-- **Início:** ranking popular (`/top/anime`) e **busca** por título, com **paginação**.
-- **Detalhe:** página do anime com sinopse, gêneros, nota e metadados (`/anime/:id`).
-- **Idiomas:** UI em **português (BR)** ou **espanhol (Latam)**; a **sinopse** é traduzida do inglês via **MyMemory** (automática), com **cache em IndexedDB** por anime, idioma e hash do texto.
-- **Favoritos (MVP):** lista de IDs salvos no **`localStorage`** (coração no card e na página de detalhe; contador no cabeçalho).
+| Tecnologia | Uso |
+|------------|-----|
+| React 18 | UI |
+| TypeScript | Tipagem de props e respostas da API |
+| Vite 6 | Build e servidor de desenvolvimento |
+| Material UI 6 | Layout, AppBar, cards, grid responsivo |
+| Axios | Cliente HTTP e instância única para a Jikan |
+| React Router 6 | Rotas declarativas |
 
-## Pré-requisitos
+**Dados:** `useState` + `useEffect` para chamadas à API (sem React Query).
 
-- [Node.js](https://nodejs.org/) (recomendado: LTS)
-- npm (incluído com o Node)
+## Funcionalidades
+
+- **Início (`/`):** ranking por popularidade (`GET /top/anime`) ou busca por título (`GET /anime?q=`), com paginação.
+- **Detalhe (`/anime/:id`):** imagem, títulos, nota, episódios, status, classificação, gêneros, sinopse (HTML da API normalizada), data de estreia, trailer em iframe quando a API enviar `embed_url`.
+- **Favoritos (`/favorites`) e Assistidos (`/watched`):** listas separadas; cada anime pode estar em uma ou nas duas; cards com atalhos para marcar/desmarcar.
+- **Barra superior:** links para Início, Favoritos e Assistidos; chips com contagem de itens salvos.
+- **Persistência:** IDs salvos em `localStorage` (prefixo `desafio-anime-list:`), chaves `favorite-mal-ids` e `watched-mal-ids`.
+
+## Rotas
+
+| Caminho | Descrição |
+|---------|-----------|
+| `/` | Home |
+| `/anime/:id` | Detalhe do anime |
+| `/favorites` | Lista de favoritos |
+| `/watched` | Lista de assistidos |
 
 ## Como rodar
 
-Na raiz do projeto:
+Requisito: [Node.js](https://nodejs.org/) (recomendado LTS).
 
 ```bash
 npm install
 npm run dev
 ```
 
-O Vite exibirá um endereço local (em geral `http://localhost:5173`). Abra no navegador.
+Abra o endereço exibido no terminal (em geral `http://localhost:5173`).
 
-### Outros scripts
-
-| Comando        | Descrição              |
-| -------------- | ---------------------- |
-| `npm run build` | Build de produção      |
-| `npm run preview` | Pré-visualiza o build |
-| `npm run lint`  | ESLint                 |
+| Script | Descrição |
+|--------|-----------|
+| `npm run build` | Typecheck + build de produção para `dist/` |
+| `npm run preview` | Servir o build localmente |
+| `npm run lint` | ESLint |
 
 ## Variáveis de ambiente (opcional)
 
-Copie `.env.example` para `.env` se precisar sobrescrever a URL base da API (`VITE_API_BASE_URL`). O padrão é `https://api.jikan.moe/v4`.
+Copie `.env.example` para `.env` na raiz do projeto.
 
-- **`VITE_MYMEMORY_EMAIL` (opcional):** e-mail associado ao [MyMemory](https://mymemory.translated.net/) para aumentar a cota diária de tradução de sinopses.
+- ** `VITE_API_BASE_URL`** — sobrescreve a base da Jikan (padrão: `https://api.jikan.moe/v4`).
 
-Em **desenvolvimento**, o Vite faz **proxy** de `/mymemory` para a API MyMemory e evita bloqueio CORS. No **build de produção**, as requisições vão direto ao MyMemory; se o navegador bloquear CORS, será preciso um proxy no seu host ou outro provedor de tradução.
+## Estrutura do código
 
-## Estrutura principal
+```
+src/
+  api/           — jikanClient, jikanAnimeEndpoints, animeApi (serviço)
+  components/    — AnimeCard, layout (MainLayout, Navbar)
+  context/       — animeListsContext, AnimeListsProvider
+  hooks/         — useAnimeLists
+  lib/           — storage (localStorage/sessionStorage)
+  pages/         — Home, AnimeDetail, Favorites, Watched, SavedAnimeListPage
+  router/        — definição de rotas
+  types/         — tipos alinhados às respostas Jikan
+  utils/         — stripHtml (sinopse)
+```
 
-- `src/api/` — `jikanClient.ts` (Axios + base URL Jikan), `jikanAnimeEndpoints.ts` (caminhos REST), `animeApi.ts` (serviço: top, busca, detalhe)
-- `src/components/` — `Navbar`, layout e `AnimeCard`
-- `src/context/` — favoritos (`FavoritesProvider`)
-- `src/hooks/` — `useAnimeCatalog`, `useAnimeDetail`, `useTranslatedSynopsis`
-- `src/i18n/` — textos da UI e constantes de locale
-- `src/lib/` — `localStorage` / `sessionStorage`, cache IndexedDB da sinopse, cliente MyMemory
-- `src/pages/` — Home e detalhe
-- `src/types/` — tipos das respostas Jikan
-- `src/utils/` — utilitários (ex.: limpeza de HTML na sinopse)
+## Limites da API
 
-## Decisões de arquitetura (Dia 2)
+A Jikan é pública e pode responder **429 Too Many Requests** se houver muitas chamadas seguidas. O app trata isso com uma mensagem de erro genérica.
 
-- **Caminhos da API:** mantidos em `jikanAnimeEndpoints.ts` em vez de colapsar tudo em `animeApi.ts`, para o mapa REST ficar visível num só lugar e escalar se surgirem mais recursos Jikan. *Alternativa avaliada:* constantes no topo de `animeApi.ts` (menos arquivos em projetos mínimos).
-- **Barra superior:** componente `Navbar` (não `Header`) para alinhar ao cronograma do desafio e reforçar papel de navegação; usa `nav` + ARIA. *Alternativa avaliada:* nome `Header` (comum em design systems) ou `BottomNavigation` no rodapé (útil com muitas abas).
+## Próximos passos (desafio PDF)
 
-## Tema MUI
+Itens ainda não implementados no enunciio completo: carrossel na home, busca global fixa no AppBar, filtros e ordenação, alternância grid/lista persistida, etc.
 
-O **ThemeProvider** e o **CssBaseline** estão configurados em `src/main.tsx`, com tema definido em `src/theme.ts`.
+## Licença
+
+Uso educacional / desafio técnico. Dados de anime via Jikan; MyAnimeList é marca de terceiros.

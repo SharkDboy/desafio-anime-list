@@ -3,34 +3,24 @@ import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
-import FormControl from "@mui/material/FormControl";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
 import Stack from "@mui/material/Stack";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { Link as RouterLink, useMatch } from "react-router-dom";
-import { useFavorites } from "@/context/FavoritesContext";
-import { useLocale } from "@/context/LocaleContext";
-import type { Locale } from "@/i18n/constants";
+import { useAnimeLists } from "@/hooks/useAnimeLists";
 
 export function Navbar() {
   const homeActive = useMatch({ path: "/", end: true });
-  const { ids } = useFavorites();
-  const { locale, setLocale, t } = useLocale();
-
-  const favLabel =
-    ids.length === 1
-      ? t("nav.favOne", { n: ids.length })
-      : t("nav.favOther", { n: ids.length });
+  const favActive = useMatch({ path: "/favorites", end: true });
+  const watchedActive = useMatch({ path: "/watched", end: true });
+  const { favoriteIds, watchedIds } = useAnimeLists();
 
   return (
     <AppBar position="sticky" color="default" elevation={2}>
       <Toolbar sx={{ maxWidth: 1152, width: "100%", mx: "auto", gap: 2 }}>
         <Box
           component="nav"
-          aria-label={t("nav.ariaNav")}
+          aria-label="Principal"
           sx={{
             display: "flex",
             flexGrow: 1,
@@ -70,7 +60,7 @@ export function Navbar() {
                 color="text.secondary"
                 sx={{ display: { xs: "none", sm: "block" } }}
               >
-                {t("nav.brandSubtitle")}
+                Jikan API · MyAnimeList (não oficial)
               </Typography>
             </Stack>
           </Stack>
@@ -82,35 +72,46 @@ export function Navbar() {
             variant={homeActive ? "contained" : "text"}
             aria-current={homeActive ? "page" : undefined}
           >
-            {t("nav.home")}
+            Início
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/favorites"
+            color="inherit"
+            variant={favActive ? "contained" : "text"}
+            aria-current={favActive ? "page" : undefined}
+          >
+            Favoritos
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/watched"
+            color="inherit"
+            variant={watchedActive ? "contained" : "text"}
+            aria-current={watchedActive ? "page" : undefined}
+          >
+            Assistidos
           </Button>
         </Box>
 
-        <FormControl
-          size="small"
-          sx={{ minWidth: { xs: 120, sm: 160 }, flexShrink: 0 }}
-        >
-          <InputLabel id="locale-select-label">{t("nav.language")}</InputLabel>
-          <Select<Locale>
-            labelId="locale-select-label"
-            value={locale}
-            label={t("nav.language")}
-            onChange={(e) => setLocale(e.target.value as Locale)}
-          >
-            <MenuItem value="pt-BR">{t("nav.langPt")}</MenuItem>
-            <MenuItem value="es">{t("nav.langEs")}</MenuItem>
-          </Select>
-        </FormControl>
-
-        {ids.length > 0 && (
-          <Chip
-            size="small"
-            label={favLabel}
-            color="primary"
-            variant="outlined"
-            sx={{ flexShrink: 0 }}
-          />
-        )}
+        <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
+          {favoriteIds.length > 0 && (
+            <Chip
+              size="small"
+              label={`Favoritos: ${favoriteIds.length}`}
+              color="primary"
+              variant="outlined"
+            />
+          )}
+          {watchedIds.length > 0 && (
+            <Chip
+              size="small"
+              label={`Assistidos: ${watchedIds.length}`}
+              color="success"
+              variant="outlined"
+            />
+          )}
+        </Stack>
       </Toolbar>
     </AppBar>
   );

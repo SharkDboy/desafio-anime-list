@@ -1,6 +1,5 @@
 import { createTheme } from "@mui/material/styles";
 
-/** Base do fundo (camadas extras vêm no CssBaseline). */
 const bgInk = "#06040c";
 const bgPaper = "#12101c";
 

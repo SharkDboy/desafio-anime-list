@@ -10,32 +10,64 @@ import Pagination from "@mui/material/Pagination";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
+import { getTopAnime, searchAnime } from "@/api/animeApi";
 import { AnimeCard } from "@/components/AnimeCard";
-import { useLocale } from "@/context/LocaleContext";
-import { useAnimeCatalog } from "@/hooks/useAnimeCatalog";
+import type { AnimeSearchResponse } from "@/types/anime";
+
+const PAGE_SIZE = 24;
 
 export function HomePage() {
-  const { t } = useLocale();
   const [input, setInput] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [data, setData] = useState<AnimeSearchResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     setPage(1);
   }, [appliedSearch]);
 
-  const { data, isPending, isError, error } = useAnimeCatalog(page, appliedSearch);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    const q = appliedSearch.trim();
+    const run = async () => {
+      try {
+        const result = q
+          ? await searchAnime({ q, page, limit: PAGE_SIZE })
+          : await getTopAnime({
+              page,
+              limit: PAGE_SIZE,
+              filter: "bypopularity",
+            });
+        if (!cancelled) setData(result);
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e : new Error(String(e)));
+          setData(null);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+    void run();
+    return () => {
+      cancelled = true;
+    };
+  }, [page, appliedSearch]);
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
       <Box>
         <Typography variant="h4" component="h1" fontWeight={700}>
-          {t("home.title")}
+          {appliedSearch ? "Resultados da busca" : "Animes populares"}
         </Typography>
         <Typography variant="body1" color="text.secondary" sx={{ mt: 1 }}>
           {appliedSearch
-            ? t("home.subtitleResults", { q: appliedSearch })
-            : t("home.subtitlePopular")}
+            ? `Busca: "${appliedSearch}"`
+            : "Ranking por popularidade na Jikan API"}
         </Typography>
       </Box>
 
@@ -48,19 +80,15 @@ export function HomePage() {
       >
         <TextField
           fullWidth
-          label={t("home.searchLabel")}
-          placeholder={t("home.searchPlaceholder")}
+          label="Buscar por título"
+          placeholder="Digite e pressione Enter ou o ícone"
           value={input}
           onChange={(e) => setInput(e.target.value)}
           slotProps={{
             input: {
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton
-                    type="submit"
-                    edge="end"
-                    aria-label={t("home.searchAria")}
-                  >
+                  <IconButton type="submit" edge="end" aria-label="Buscar">
                     <SearchIcon />
                   </IconButton>
                 </InputAdornment>
@@ -70,23 +98,23 @@ export function HomePage() {
         />
       </Box>
 
-      {isError && (
+      {error && (
         <Alert severity="error">
-          {error instanceof Error ? error.message : t("home.errLoad")}
+          {error instanceof Error ? error.message : "Erro ao carregar"}
         </Alert>
       )}
 
-      {isPending && (
+      {loading && (
         <Box sx={{ display: "flex", justifyContent: "center", py: 8 }}>
-          <CircularProgress aria-label={t("home.loading")} />
+          <CircularProgress aria-label="Carregando" />
         </Box>
       )}
 
-      {!isPending && data && (
+      {!loading && data && (
         <>
           {data.data.length === 0 ? (
             <Typography color="text.secondary" textAlign="center" py={4}>
-              {t("home.noResults")}
+              Nenhum resultado encontrado.
             </Typography>
           ) : (
             <Grid container spacing={2}>
